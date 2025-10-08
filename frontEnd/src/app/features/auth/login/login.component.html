@@ -1,0 +1,26 @@
+<div class="form-container">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+    <h2>Login</h2>
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email">
+      </div>
+
+    <div class="form-field">
+      <label for="password">Senha</label>
+      <input id="password" type="password" formControlName="senha">
+      </div>
+
+        <div *ngIf="loginError" class="form-error-message">
+      {{ loginError }}
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid">Entrar</button>
+
+    <div class="form-link">
+      <a routerLink="/register">Não tem uma conta? Cadastre-se</a>
+    </div>
+
+  </form>
+</div>

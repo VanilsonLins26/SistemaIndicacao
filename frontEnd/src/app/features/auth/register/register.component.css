@@ -1,0 +1,103 @@
+/* Container principal para centralizar o formulário na tela */
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinha no topo */
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+/* Estilos do formulário */
+form {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px R10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Espaçamento entre os campos */
+}
+
+h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+/* Estilos para cada campo (label + input + erro) */
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #34495e;
+}
+
+input {
+  padding: 0.75rem;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* Estilos para as mensagens de erro de validação */
+.error-message {
+  margin-top: 0.25rem;
+  min-height: 1.2em; /* Evita que o layout "pule" quando o erro aparece */
+}
+
+.error-message small {
+  color: #e74c3c;
+  font-size: 0.8rem;
+}
+
+/* Estilos do botão */
+button {
+  padding: 0.75rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* Estilos para o link de login */
+.form-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.form-link a {
+  color: #3498db;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.form-link a:hover {
+  text-decoration: underline;
+}

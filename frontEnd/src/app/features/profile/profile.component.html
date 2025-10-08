@@ -1,0 +1,33 @@
+<div class="profile-page" *ngIf="!isLoading">
+  <div class="profile-card" *ngIf="user() as currentUser">
+    
+    <div class="profile-header">
+      <h2>{{ currentUser.nome }}</h2>
+      <p class="subtitle">Bem-vindo(a) de volta!</p>
+    </div>
+
+    <div class="info-group">
+      <label>Pontuação</label>
+      <div class="info-box">{{ currentUser.pontuacao }}</div>
+    </div>
+    
+    <div class="info-group">
+      <label>Seu link de indicação</label>
+      <div class="link-input-group">
+        <input type="text" [value]="'http://localhost:4200/register?ref=' + currentUser.codigoIndicacao" readonly>
+        <button class="copy-button" (click)="copyLink()">Copiar</button>
+      </div>
+    </div>
+  
+    <button class="logout-button" (click)="logout()">Sair</button>
+  </div>
+</div>
+
+<div class="toast-notification" [class.show]="showToast">
+  <span class="icon">&#128279;</span>
+  Link copiado com sucesso!
+</div>
+
+<div *ngIf="isLoading" class="loading-indicator">
+  <p>Carregando...</p>
+</div>

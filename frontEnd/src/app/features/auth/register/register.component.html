@@ -1,0 +1,47 @@
+<div class="form-container">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+    <h2>Criar Conta</h2>
+
+    <div class="form-field">
+      <label for="nome">Nome</label>
+      <input id="nome" type="text" formControlName="nome">
+      <div *ngIf="registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched" class="error-message">
+        <small *ngIf="registerForm.get('nome')?.errors?.['required']">Nome é obrigatório.</small>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email">
+      <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
+        <small *ngIf="registerForm.get('email')?.errors?.['required']">Email é obrigatório.</small>
+        <small *ngIf="registerForm.get('email')?.errors?.['email']">Formato de email inválido.</small>
+      </div>
+    </div>
+
+   <div class="form-field">
+  <label for="senha">Senha</label>
+  <input id="senha" type="password" formControlName="senha">
+
+  <div *ngIf="registerForm.get('senha')?.invalid && (registerForm.get('senha')?.dirty || registerForm.get('senha')?.touched)" class="error-message">
+
+    <small *ngIf="registerForm.get('senha')?.errors?.['required']">
+      Senha é obrigatória.
+    </small>
+
+    <small *ngIf="registerForm.get('senha')?.errors?.['pattern']">
+      A senha deve ter no mínimo 8 caracteres, com letras e números.
+    </small>
+
+  </div>
+</div>
+
+   
+
+    <button type="submit" [disabled]="registerForm.invalid">Cadastrar</button>
+
+    <div class="form-link">
+      <a routerLink="/login">Já tem uma conta? Faça login</a>
+    </div>
+  </form>
+</div>
