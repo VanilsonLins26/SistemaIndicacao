@@ -36,6 +36,7 @@ namespace API.Services
             return refreshToken;
         }
 
+
         public ClaimsPrincipal ObterDoTokenExpirado(string token, IConfiguration _config)
         {
             var secretKey = _config["JWT:SecretKey"] ?? throw new InvalidOperationException("Invalid key");
@@ -49,7 +50,6 @@ namespace API.Services
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-
             if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
 
             {

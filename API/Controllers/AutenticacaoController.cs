@@ -2,6 +2,7 @@
 using API.DTOs;
 using API.Models;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -28,11 +29,7 @@ public class AutenticacaoController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
-    public string Ok()
-    {
-        return "ok";
-    }
+   
 
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginDTO model)
@@ -164,6 +161,32 @@ public class AutenticacaoController : ControllerBase
             accessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
             refreshToken = newRefreshToken
         });
+    }
+
+    [HttpGet("perfil")]
+    [Authorize]
+    public async Task<IActionResult> ObterInfoUsuarios()
+    {
+        var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if(usuarioId is null)
+            return Unauthorized();
+
+        var usuario = await _userManager.FindByIdAsync(usuarioId);
+
+        if(usuario is null)
+            return NotFound("Usuario não encontrado, faça o login novamente");
+
+        var usuarioDto = new UsuarioDTO
+        {
+            Id = usuario.Id,
+            Nome = usuario.UserName,
+            Email = usuario.Email,
+            CodigoIndicacao = usuario.CodigoIndicacao,
+            Pontuacao = usuario.Pontuacao
+        };
+        return Ok(usuarioDto);
+
     }
 
     private async Task<string> GerarCodigoUnicoAsync()
