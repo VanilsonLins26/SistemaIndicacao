@@ -4,6 +4,7 @@ namespace API.Models;
 
 public class Usuario : IdentityUser
 {
+    public string? NomeCompleto { get; set; }
     public int Pontuacao { get; set; }
     public string? CodigoIndicacao { get; set; }
 

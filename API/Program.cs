@@ -15,14 +15,18 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddIdentity<Usuario, IdentityRole>().
+builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
+{
+    options.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ·‡‚„ÈËÍÌÔÛÙıˆ˙Á¡¿¬√…» Õœ”‘’÷⁄«";
+}).
     AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-var mySqlConnection = builder.Configuration.GetConnectionString("AppContext");
+var connectionString = builder.Configuration.GetConnectionString("AppContext");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-                                            options.UseMySql(mySqlConnection, ServerVersion
-                                            .AutoDetect(mySqlConnection)));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 
@@ -49,6 +53,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "CorsIndicacao",
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4200") 
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
 
 var app = builder.Build();
 
@@ -60,6 +74,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("CorsIndicacao");
 app.UseAuthentication();
 app.UseAuthorization();
 

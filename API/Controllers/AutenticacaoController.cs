@@ -39,19 +39,9 @@ public class AutenticacaoController : ControllerBase
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Senha))
         {
 
-            var authClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim("codigoIndicacao", user.CodigoIndicacao),
-                new Claim("id", user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
 
 
-
-            var token = _tokenService.GerarAccessToken(authClaims, _configuration);
+            var token = _tokenService.GerarAccessToken(user, _configuration);
             var refreshToken = _tokenService.GerarRefreshToken();
 
             int.TryParse(_configuration["JWT:RefreshTokenValidityInMinutes"], out int validity);
@@ -63,7 +53,7 @@ public class AutenticacaoController : ControllerBase
             var usuarioInfo = new UsuarioDTO
             {
                 Id = user.Id,
-                Nome = user.UserName,
+                Nome = user.NomeCompleto,
                 Email = user.Email,
                 Pontuacao = user.Pontuacao,
                 CodigoIndicacao = user.CodigoIndicacao,
@@ -84,13 +74,13 @@ public class AutenticacaoController : ControllerBase
         return new UnauthorizedResult();
     }
 
-    [HttpPost("registrar/{codigoIndicacao?}")]
-    public async Task<IActionResult> RegistrarAsync([FromBody] RegistrarDTO model, string? codigoIndicacao)
+    [HttpPost("registrar")]
+    public async Task<IActionResult> RegistrarAsync([FromBody] RegistrarDTO model)
     {
-        var userExists = await _userManager.FindByNameAsync(model.Nome);
+        var userExists = await _userManager.FindByEmailAsync(model.Email);
         if (userExists != null)
         {
-            return new ObjectResult(new ResponseDTO { Status = "Error", Erro = "User already exists!" })
+            return new ObjectResult(new ResponseDTO { Status = "Erro", Erro = "Este email já está cadastrado!" })
             {
                 StatusCode = StatusCodes.Status500InternalServerError
             };
@@ -98,12 +88,21 @@ public class AutenticacaoController : ControllerBase
 
         var user = new Usuario
         {
+            NomeCompleto = model.Nome,
             Email = model.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = model.Nome,
+            UserName = model.Email,
             CodigoIndicacao = await GerarCodigoUnicoAsync()
 
         };
+
+        var token = _tokenService.GerarAccessToken(user, _configuration);
+        var refreshToken = _tokenService.GerarRefreshToken();
+
+        int.TryParse(_configuration["JWT:RefreshTokenValidityInMinutes"], out int validity);
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(validity);
+
 
         var result = await _userManager.CreateAsync(user, model.Senha);
         if (!result.Succeeded)
@@ -114,24 +113,34 @@ public class AutenticacaoController : ControllerBase
             };
         }
 
-        if(codigoIndicacao is not null)
+        if (!string.IsNullOrEmpty(model.CodigoIndicacao))
         {
-            Usuario usuario = await BuscarUsarioIndicadorAsync(codigoIndicacao);
-            if(usuario is not null)
+            var usuarioIndicador = await BuscarUsarioIndicadorAsync(model.CodigoIndicacao);
+            if(usuarioIndicador is not null)
             {
-                usuario.Pontuacao++;
-                var resultPontuacao = await _userManager.UpdateAsync(usuario);
-                if (!result.Succeeded)
-                {
-                    return new ObjectResult(new ResponseDTO { Status = "Erro", Erro = "Falha ao atualizar a pontução do usuario indicador." })
-                    {
-                        StatusCode = StatusCodes.Status500InternalServerError
-                    };
-                }
+                usuarioIndicador.Pontuacao++;
+                var resultPontuacao = await _userManager.UpdateAsync(usuarioIndicador);
+
             }
         }
 
-        return new OkObjectResult(new ResponseDTO { Status = "Sucesso", Erro = "Usuario criado!" });
+        var usuarioInfo = new UsuarioDTO
+        {
+            Id = user.Id,
+            Nome = user.NomeCompleto,
+            Email = user.Email,
+            Pontuacao = user.Pontuacao,
+            CodigoIndicacao = user.CodigoIndicacao,
+        };
+
+
+        return Ok(new LoginResponseDTO
+        {
+            AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+            RefreshToken = refreshToken,
+            Expiracao = token.ValidTo,
+            Usuario = usuarioInfo
+        });
     }
 
     [HttpPost("refreshtoken")]
@@ -150,7 +159,7 @@ public class AutenticacaoController : ControllerBase
             return new BadRequestObjectResult("Invalid access token/refresh token");
         }
 
-        var newAccessToken = _tokenService.GerarAccessToken(principal.Claims.ToList(), _configuration);
+        var newAccessToken = _tokenService.GerarAccessToken(user, _configuration);
         var newRefreshToken = _tokenService.GerarRefreshToken();
 
         user.RefreshToken = newRefreshToken;
@@ -180,7 +189,7 @@ public class AutenticacaoController : ControllerBase
         var usuarioDto = new UsuarioDTO
         {
             Id = usuario.Id,
-            Nome = usuario.UserName,
+            Nome = usuario.NomeCompleto,
             Email = usuario.Email,
             CodigoIndicacao = usuario.CodigoIndicacao,
             Pontuacao = usuario.Pontuacao

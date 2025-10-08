@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using API.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -8,14 +9,24 @@ namespace API.Services
 {
     public class TokenService : ITokenService
     {
-        public JwtSecurityToken GerarAccessToken(IEnumerable<Claim> claims, IConfiguration _config)
+        public JwtSecurityToken GerarAccessToken(Usuario usuario, IConfiguration _config)
         {
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, usuario.NomeCompleto),
+                new Claim(ClaimTypes.Email, usuario.Email),
+                new Claim("codigoIndicacao", usuario.CodigoIndicacao),
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id),
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+
             var key = _config.GetSection("JWT").GetValue<string>("SecretKey") ?? throw new InvalidOperationException("Invalid secret key");
             var privateKey = Encoding.UTF8.GetBytes(key);
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(privateKey), SecurityAlgorithms.HmacSha256Signature);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(claims),
+                Subject = new ClaimsIdentity(authClaims),
                 Expires = DateTime.UtcNow.AddMinutes(_config.GetSection("JWT").GetValue<double>("TokenValidityInMinutes")),
                 Audience = _config.GetSection("JWT").GetValue<string>("ValidAudience"),
                 Issuer = _config.GetSection("JWT").GetValue<string>("ValidIssuer"),

@@ -407,6 +407,8 @@ FodyWeavers.xsd
 # Local History for Visual Studio Code
 .history/
 
+*.db
+
 # Built Visual Studio Code Extensions
 *.vsix
 
@@ -415,6 +417,36 @@ FodyWeavers.xsd
 *.msi
 *.msix
 *.msm
+
+# -----------------
+# Regras para Angular
+# -----------------
+
+# Pasta de build de produção
+/dist/
+
+# Pasta de cache do Angular CLI
+/.angular/
+
+# Arquivos de log de gerenciadores de pacotes
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Arquivos de configuração de editores
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
 <<<<<<< HEAD
 *.msp
 =======

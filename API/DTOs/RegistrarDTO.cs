@@ -13,4 +13,6 @@ public class RegistrarDTO
 
     [Required(ErrorMessage = "A senha é necessária!!")]
     public string? Senha { get; set; }
+
+    public string? CodigoIndicacao { get; set; }
 }
