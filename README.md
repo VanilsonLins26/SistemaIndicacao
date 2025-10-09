@@ -54,7 +54,7 @@ Para executar a aplicação, você precisará ter os seguintes softwares instala
 2.  Abra o terminal integrado do VS Code no caminho /API (atalho: `Ctrl + '`).
 3.  Execute o comando abaixo para iniciar a API. O Entity Framework Core irá criar o banco de dados SQLite (`indicacao.db`) na primeira vez.
     ```bash
-    dotnet run
+    dotnet run --launch-profile https
     ```
 4.  A API estará rodando. A URL base é `https://localhost:7066` (a porta pode variar, verifique o terminal). **Deixe este terminal rodando.**
 
