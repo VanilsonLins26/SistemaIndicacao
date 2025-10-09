@@ -114,4 +114,17 @@ Neste projeto, utilizei uma IA(Gemini) como uma ferramenta de mentoria para acel
 
 * **Depuração (Debugging):** Durante o desenvolvimento enfrentei alguns bugs, como por exemplo o front end iniciando a pagina totalmente em branco, com a ajuda da IA descobri que estava importando o Router do express ao invés angular/core. Outro erro foi que usei o atributo username do identity para guardar o nome de usuario, mas não conseguia usar nome e sobrenome, a IA me informou que por padrao, o username funciona com um identificador único, não aceitando barra de espaço ou acento, entao criei outro paramento para armazenar o nome completo na classe Usuário.
 
-**Principais Aprendizado:**A interação com a IA me ajudou a descobrir e aplicar novas funcionalidades, como o uso de toasts para exibir notificações ao copiar o link(um recurso que eu não conhecia antes).Além disso, aprendi as melhores práticas para algumas funcionalidades. Foram aprendizados que pretendo aplicar e aprimorar em projetos futuros.
+* **Principais Aprendizado:**A interação com a IA me ajudou a descobrir e aplicar novas funcionalidades, como o uso de toasts para exibir notificações ao copiar o link(um recurso que eu não conhecia antes).Além disso, aprendi as melhores práticas para algumas funcionalidades. Foram aprendizados que pretendo aplicar e aprimorar em projetos futuros.
+
+## OBS:
+
+* ** Durante o vídeo acabei me esquecendo de rodar a aplicação em uma tela mobile, então vou anexar as imagens aqui:
+<img width="418" height="862" alt="image" src="https://github.com/user-attachments/assets/d0140398-151a-4503-922b-35c05ec34c97" />
+<br>
+
+<img width="422" height="856" alt="image" src="https://github.com/user-attachments/assets/d8843a2a-c73e-46d5-addc-a8b5a77bde36" />
+<br>
+
+<img width="420" height="855" alt="image" src="https://github.com/user-attachments/assets/ca0c61ea-9e92-4f66-a1d0-8d7c9d8d3c0f" />
+<br>
+
