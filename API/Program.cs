@@ -1,5 +1,6 @@
 using API.DbContext;
 using API.Models;
+using API.Repository;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +23,8 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
 }).
     AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 var connectionString = builder.Configuration.GetConnectionString("AppContext");
 

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -17,6 +18,7 @@ export class RegisterComponent {
   private route = inject(ActivatedRoute);
 
   registerForm! : FormGroup;
+  registerError: string | null = null;
 
   ngOnInit(): void{
     this.registerForm = this.fb.group({
@@ -41,10 +43,16 @@ export class RegisterComponent {
         next: () => {
           this.router.navigate(['/perfil']);
         },
-        error: (err) => {
-          console.error('Erro no cadastro', err);
-          
-          alert(`Falha no cadastro: ${err.error?.message || 'Tente novamente.'}`);
+        error: (err: HttpErrorResponse) => {
+        console.error('Erro no cadastro', err);
+
+        if (err.status === 409) { 
+          this.registerError = err.error?.erro || 'Este email já está em uso.';
+        } else if (err.status === 400 && err.error?.erros) { 
+          this.registerError = err.error.erros.join(' ');
+        } else {
+          this.registerError = 'Falha ao realizar o cadastro. Tente novamente mais tarde.';
+        }
         }
       });
     } else {

@@ -6,10 +6,13 @@ namespace API.Services;
 
 public interface ITokenService
 {
-        JwtSecurityToken GerarAccessToken(Usuario usuario, IConfiguration _config);
-        string GerarRefreshToken();
-        ClaimsPrincipal ObterDoTokenExpirado(string token, IConfiguration _config);
+    JwtSecurityToken GerarAccessToken(Usuario usuario, IConfiguration _config);
+    string GerarRefreshToken();
+    ClaimsPrincipal ObterDoTokenExpirado(string token, IConfiguration _config);
 
-    
+    Task<string> GerarCodigoUnicoAsync();
+
+
+
 
 }

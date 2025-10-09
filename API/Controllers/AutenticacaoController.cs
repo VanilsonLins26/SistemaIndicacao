@@ -1,6 +1,7 @@
 ﻿using API.DbContext;
 using API.DTOs;
 using API.Models;
+using API.Repository;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,17 +20,17 @@ public class AutenticacaoController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly UserManager<Usuario> _userManager;
     private readonly IConfiguration _configuration;
-    private readonly AppDbContext _context;
+    private readonly IUsuarioRepository _usuarioRepository;
 
-    public AutenticacaoController(ITokenService tokenService, UserManager<Usuario> userManager, IConfiguration configuration, AppDbContext context)
+    public AutenticacaoController(ITokenService tokenService, UserManager<Usuario> userManager, IConfiguration configuration, IUsuarioRepository usuarioRepository)
     {
         _tokenService = tokenService;
         _userManager = userManager;
         _configuration = configuration;
-        _context = context;
+        _usuarioRepository = usuarioRepository;
     }
 
-   
+
 
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginDTO model)
@@ -80,10 +81,7 @@ public class AutenticacaoController : ControllerBase
         var userExists = await _userManager.FindByEmailAsync(model.Email);
         if (userExists != null)
         {
-            return new ObjectResult(new ResponseDTO { Status = "Erro", Erro = "Este email já está cadastrado!" })
-            {
-                StatusCode = StatusCodes.Status500InternalServerError
-            };
+            return Conflict(new ResponseDTO { Status = "Erro", Erro = "Este email já está cadastrado!" });
         }
 
         var user = new Usuario
@@ -92,8 +90,7 @@ public class AutenticacaoController : ControllerBase
             Email = model.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = model.Email,
-            CodigoIndicacao = await GerarCodigoUnicoAsync()
-
+            CodigoIndicacao = await _tokenService.GerarCodigoUnicoAsync()
         };
 
         var token = _tokenService.GerarAccessToken(user, _configuration);
@@ -115,7 +112,7 @@ public class AutenticacaoController : ControllerBase
 
         if (!string.IsNullOrEmpty(model.CodigoIndicacao))
         {
-            var usuarioIndicador = await BuscarUsarioIndicadorAsync(model.CodigoIndicacao);
+            var usuarioIndicador = await _usuarioRepository.BuscarUsarioIndicadorAsync(model.CodigoIndicacao);
             if(usuarioIndicador is not null)
             {
                 usuarioIndicador.Pontuacao++;
@@ -141,6 +138,32 @@ public class AutenticacaoController : ControllerBase
             Expiracao = token.ValidTo,
             Usuario = usuarioInfo
         });
+    }
+
+    [HttpGet("perfil")]
+    [Authorize]
+    public async Task<IActionResult> ObterInfoUsuarios()
+    {
+        var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (usuarioId is null)
+            return Unauthorized();
+
+        var usuario = await _userManager.FindByIdAsync(usuarioId);
+
+        if (usuario is null)
+            return NotFound("Usuario não encontrado, faça o login novamente");
+
+        var usuarioDto = new UsuarioDTO
+        {
+            Id = usuario.Id,
+            Nome = usuario.NomeCompleto,
+            Email = usuario.Email,
+            CodigoIndicacao = usuario.CodigoIndicacao,
+            Pontuacao = usuario.Pontuacao
+        };
+        return Ok(usuarioDto);
+
     }
 
     [HttpPost("refreshtoken")]
@@ -172,52 +195,4 @@ public class AutenticacaoController : ControllerBase
         });
     }
 
-    [HttpGet("perfil")]
-    [Authorize]
-    public async Task<IActionResult> ObterInfoUsuarios()
-    {
-        var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if(usuarioId is null)
-            return Unauthorized();
-
-        var usuario = await _userManager.FindByIdAsync(usuarioId);
-
-        if(usuario is null)
-            return NotFound("Usuario não encontrado, faça o login novamente");
-
-        var usuarioDto = new UsuarioDTO
-        {
-            Id = usuario.Id,
-            Nome = usuario.NomeCompleto,
-            Email = usuario.Email,
-            CodigoIndicacao = usuario.CodigoIndicacao,
-            Pontuacao = usuario.Pontuacao
-        };
-        return Ok(usuarioDto);
-
-    }
-
-    private async Task<string> GerarCodigoUnicoAsync()
-    {
-        string codigo;
-
-        do
-            codigo = Guid.NewGuid().ToString("N")[..8].ToUpper();
-        while (await _context.Users.AnyAsync(u => u.CodigoIndicacao == codigo));
-
-        return codigo;
-    }
-
-    private async Task<Usuario?> BuscarUsarioIndicadorAsync(string codigo)
-    {
-        Usuario usuario = await _context.Users.FirstOrDefaultAsync(u => u.CodigoIndicacao == codigo);
-
-        if(usuario is not null)
-        {
-            return usuario;
-        }
-
-        return null;
-    }
 }

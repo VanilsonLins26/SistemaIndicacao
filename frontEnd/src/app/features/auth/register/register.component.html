@@ -1,9 +1,9 @@
 <div class="form-container">
-  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalate>
     <h2>Criar Conta</h2>
 
     <div class="form-field">
-      <label for="nome">Nome</label>
+      <label for="nome">Nome Completo</label>
       <input id="nome" type="text" formControlName="nome">
       <div *ngIf="registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched" class="error-message">
         <small *ngIf="registerForm.get('nome')?.errors?.['required']">Nome é obrigatório.</small>
@@ -19,24 +19,24 @@
       </div>
     </div>
 
-   <div class="form-field">
-  <label for="senha">Senha</label>
-  <input id="senha" type="password" formControlName="senha">
+    <div class="form-field">
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" formControlName="senha">
+      <div *ngIf="registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched" class="error-message">
+        <small *ngIf="registerForm.get('senha')?.errors?.['required']">Senha é obrigatória.</small>
+        <small *ngIf="registerForm.get('senha')?.errors?.['pattern']">
+          A senha deve ter no mínimo 8 caracteres, com letras e números.
+        </small>
+      </div>
+    </div>
 
-  <div *ngIf="registerForm.get('senha')?.invalid && (registerForm.get('senha')?.dirty || registerForm.get('senha')?.touched)" class="error-message">
+    <div *ngIf="registerForm.errors?.['passwordsMismatch'] && registerForm.get('confirmarSenha')?.touched" class="form-error-message">
+      As senhas não coincidem.
+    </div>
 
-    <small *ngIf="registerForm.get('senha')?.errors?.['required']">
-      Senha é obrigatória.
-    </small>
-
-    <small *ngIf="registerForm.get('senha')?.errors?.['pattern']">
-      A senha deve ter no mínimo 8 caracteres, com letras e números.
-    </small>
-
-  </div>
-</div>
-
-   
+    <div *ngIf="registerError" class="form-error-message">
+      {{ registerError }}
+    </div>
 
     <button type="submit" [disabled]="registerForm.invalid">Cadastrar</button>
 

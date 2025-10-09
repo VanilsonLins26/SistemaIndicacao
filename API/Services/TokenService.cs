@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using API.Repository;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,6 +10,13 @@ namespace API.Services
 {
     public class TokenService : ITokenService
     {
+        private readonly IUsuarioRepository _usuarioRepository;
+
+        public TokenService(IUsuarioRepository usuarioRepository)
+        {
+            _usuarioRepository = usuarioRepository;
+        }
+
         public JwtSecurityToken GerarAccessToken(Usuario usuario, IConfiguration _config)
         {
             var authClaims = new List<Claim>
@@ -47,6 +55,19 @@ namespace API.Services
             return refreshToken;
         }
 
+        public async Task<string> GerarCodigoUnicoAsync()
+        {
+            string codigo;
+            do
+            {
+                codigo = Guid.NewGuid().ToString("N")[..8].ToUpper();
+            }
+
+            while (await _usuarioRepository.CodigoIndicacaoExistsAsync(codigo));
+
+            return codigo;
+        }
+
 
         public ClaimsPrincipal ObterDoTokenExpirado(string token, IConfiguration _config)
         {
@@ -68,5 +89,7 @@ namespace API.Services
             }
             return principal;
         }
+
+       
     }
 }
