@@ -26,7 +26,7 @@ A aplicação consiste em um back-end construído com ASP.NET Core e um front-en
 * **Entity Framework Core com SQLite:**
     * **Justificativa:** Escolhi o SQLite para este desafio pela sua extrema simplicidade e portabilidade. Ele funciona como um único arquivo, eliminando a necessidade de hospedar um banco de dados ou o avaliador instalar ou configurar um servidor de banco de dados, tornando o projeto fácil de executar.
     * 
-* **Autenticação JWT Bearer:** Escolhi usar uma autenticação(Bearer Token), para garantir mais segurança e controle de acesso no sistema. Isso faz com que, após o login, o servidor gere um token assinado que identifica o usuário de forma segura. Assim, em cada requisição autenticada(como ao acessar a página de perfil ou atualizar os dados do usuário)a API valida o token antes de retornar qualquer informação. Dessa forma, mesmo que a página seja recarregada, o usuário continua autenticado sem precisar refazer o login, e apenas tokens válidos e não expirados têm permissão para acessar dados protegidos. Isso melhora a experiência do usuário e evita acessos indevidos a informações sensíveis.
+* **Autenticação JWT Bearer:** Escolhi usar uma autenticação(Bearer Token), para garantir mais segurança e controle de acesso no sistema. Isso faz com que, após o login, o servidor gere um token assinado que identifica o usuário de forma segura e esse token é salvo no localstorage do frontend. Assim, em cada requisição autenticada(como ao acessar a página de perfil ou atualizar os dados do usuário)a API valida o token antes de retornar qualquer informação. Dessa forma, mesmo que a página seja recarregada, o usuário continua autenticado sem precisar refazer o login, e apenas tokens válidos e não expirados têm permissão para acessar dados protegidos. Isso melhora a experiência do usuário e evita acessos indevidos a informações sensíveis.
 
 ### Front-end
 
@@ -70,3 +70,48 @@ Para executar a aplicação, você precisará ter os seguintes softwares instala
     ng serve
     ```
 6.  Abra seu navegador e acesse **`http://localhost:4200`**.
+
+
+## ✅ Testando o Fluxo de Indicação (Passo a Passo)
+
+**obs: Geração do código:** código único alfanumérico (8 chars) gerado no momento do cadastro do usuário, atraves de um GUID.
+
+Para verificar a funcionalidade principal do sistema, siga este fluxo de teste:
+
+1.  **Faça o login** com o primeiro usuário de teste que é criado automaticamente:
+    * **Email:** `teste1@email.com`
+    * **Senha:** `Senha@123`
+
+    > Você será redirecionado para a página de perfil. Note que a **Pontuação** inicial é `0`.
+
+2.  Na página de perfil, **copie o link de indicação** clicando no botão "Copiar".
+
+3.  **Saia da conta** (logout) clicando no botão "Sair"(ou abra em outro navegador).
+
+4.  Em uma nova aba ou na mesma, **cole o link de indicação** que você copiou no seu navegador e acesse. O link será algo como `http://localhost:4200/register?ref=TESTE123`.
+
+    > Você será levado para a página de cadastro.
+
+5.  **Crie uma nova conta** para um usuário inédito. Por exemplo:
+    * **Nome:** `Novo Usuário`
+    * **Email:** `novo.usuario@email.com`
+    * **Senha:** `Senha@123`
+
+6.  Após o cadastro bem-sucedido, você será redirecionado para a página de login. Agora, **faça o login novamente**, mas desta vez com o **primeiro usuário** (`teste1@email.com`).
+
+7. Se você ainda estiver com o primeiro usuario logado em outro navegador,** basta recarregar a página **.
+
+8.  **Verifique a pontuação.**
+    > Ao acessar o perfil do usuário `teste1@email.com`, você verá que a **Pontuação** foi atualizada e agora é `1`.
+
+Isso confirma que todo o fluxo de cadastro com indicação e a atualização da pontuação do indicador estão funcionando corretamente.
+
+## 💡 Colaboração com IA
+
+Neste projeto, utilizei uma IA(Gemini) como uma ferramenta de mentoria para acelerar o desenvolvimento e garantir a aplicação das melhores práticas.
+
+* **Planejamento:** A IA foi fundamental na fase inicial para discutir as melhores abordagens, como a decisão de colocar as propriedades "código de ativação e pontuação" dentro do usuário ou em uma tabela separada.
+
+* **Depuração (Debugging):** Durante o desenvolvimento enfrentei alguns bugs, como por exemplo o front end iniciando a pagina totalmente em branco, com a ajuda da IA descobri que estava importando o Router do express ao invés angular/core. Outro erro foi que usei o atributo username do identity para guardar o nome de usuario, mas não conseguia usar nome e sobrenome, a IA me informou que por padrao, o username funciona com um identificador único, não aceitando barra de espaço ou acento, entao criei outro paramento para armazenar o nome completo na classe Usuário.
+
+**Principais Aprendizado:**A interação com a IA me ajudou a descobrir e aplicar novas funcionalidades, como o uso de toasts para exibir notificações ao copiar o link(um recurso que eu não conhecia antes).Além disso, aprendi as melhores práticas para algumas funcionalidades. Foram aprendizados que pretendo aplicar e aprimorar em projetos futuros.
